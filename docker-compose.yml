@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:7
+    container_name: kontrol-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: kontrol_admin_pass
+      MONGO_INITDB_DATABASE: kontrol
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - kontrol-network
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: kontrol-backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      PORT: 5000
+      MONGODB_URI: mongodb://admin:kontrol_admin_pass@mongodb:27017/kontrol?authSource=admin
+      JWT_SECRET: your_super_secret_jwt_key_change_in_production
+      CORS_ORIGIN: http://localhost:3000
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+      - ./generated:/app/generated
+    depends_on:
+      - mongodb
+    networks:
+      - kontrol-network
+
+  # Frontend React App
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: kontrol-frontend
+    restart: unless-stopped
+    environment:
+      REACT_APP_API_URL: http://localhost:5000
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - kontrol-network
+    stdin_open: true
+    tty: true
+
+networks:
+  kontrol-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:

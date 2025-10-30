@@ -23,7 +23,7 @@ api.interceptors.request.use(
   }
 );
 
-// Handle response errors
+
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -36,14 +36,13 @@ api.interceptors.response.use(
   }
 );
 
-// Auth API
 export const authAPI = {
   register: (data) => api.post('/api/auth/register', data),
   login: (data) => api.post('/api/auth/login', data),
   getMe: () => api.get('/api/auth/me'),
 };
 
-// Projects API
+
 export const projectsAPI = {
   getAll: (params) => api.get('/api/projects', { params }),
   getById: (id) => api.get(`/api/projects/${id}`),
@@ -52,7 +51,7 @@ export const projectsAPI = {
   delete: (id) => api.delete(`/api/projects/${id}`),
 };
 
-// Generate API
+
 export const generateAPI = {
   generate: (data) => api.post('/api/generate', data, { responseType: 'blob' }),
   getSupportedServices: () => api.get('/api/generate/supported-services'),
